@@ -55,14 +55,7 @@ int CpuProvider::getCpuTemperature() {
 }
 
 float CpuProvider::getCpuFreq() {
-    std::ifstream freq_file(
-        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq");
-    if (!freq_file.is_open())
-        return 0.0f;
-
-    int freq_khz = 0;
-    freq_file >> freq_khz;
-    return freq_khz / 1000.0f;
+    return readValue<float>(freqPath, 0.0f);
 }
 
 std::string CpuProvider::getThermalPath() {
@@ -105,6 +98,7 @@ std::string CpuProvider::getCpuNameFromSystem() {
 CpuProvider::CpuProvider() {
     cpuName = getCpuNameFromSystem();
     thermalPath = getThermalPath();
+    freqPath = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq";
 }
 
 void CpuProvider::update(SystemStats &stats) {

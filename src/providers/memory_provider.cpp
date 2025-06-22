@@ -35,7 +35,7 @@ void MemoryProvider::update(SystemStats &stats) {
     size_t swap_total = mem_data["SwapTotal"];
     size_t swap_free = mem_data["SwapFree"];
     size_t used = total - free - cached;
-    float used_percent = ((float)used / (float)total) * 100;
+    float used_percent = (static_cast<float>(used) / total) * 100;
 
     stats.memory.total = total;
     stats.memory.free = free;

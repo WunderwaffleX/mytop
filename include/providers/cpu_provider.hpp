@@ -1,7 +1,8 @@
 #pragma once
 
 #include "iprovider.hpp"
-#include "providers/iprovider.hpp"
+#include "read_provider.hpp"
+
 #include <string>
 
 struct CpuTime {
@@ -9,13 +10,16 @@ struct CpuTime {
     long long total() const {
         return user + nice + system + idle + iowait + irq + softirq + steal;
     }
-    long long idleTime() const { return idle + iowait; }
+    long long idleTime() const {
+        return idle + iowait;
+    }
 };
 
-class CpuProvider : public IStatsProvider {
+class CpuProvider : public IStatsProvider, ReadProvider {
   private:
     std::string cpuName;
     std::string thermalPath;
+    std::string freqPath;
 
     std::string getCpuNameFromSystem();
     std::string getThermalPath();
