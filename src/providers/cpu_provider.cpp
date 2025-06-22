@@ -1,7 +1,6 @@
 #include "providers/cpu_provider.hpp"
 #include "structs.hpp"
 
-#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <thread>
@@ -31,8 +30,8 @@ float CpuProvider::getCpuUsage() {
     CpuTime t2 = parseCpuTimeLine(line2);
     stat2.close();
 
-    long long totalDelta = t2.total() - t1.total();
-    long long idleDelta = t2.idleTime() - t1.idleTime();
+    uint64_t totalDelta = t2.total() - t1.total();
+    uint64_t idleDelta = t2.idleTime() - t1.idleTime();
 
     if (totalDelta == 0)
         return 0.0f;
@@ -40,7 +39,7 @@ float CpuProvider::getCpuUsage() {
     return 100.0f * (totalDelta - idleDelta) / totalDelta;
 }
 
-int CpuProvider::getCpuTemperature() {
+size_t CpuProvider::getCpuTemperature() {
     if (thermalPath.empty())
         return 0;
 
@@ -59,29 +58,13 @@ float CpuProvider::getCpuFreq() {
 }
 
 std::string CpuProvider::getThermalPath() {
-    namespace fs = std::filesystem;
     const std::vector<std::string> cpu_zone_keywords = {"x86_pkg_temp"};
 
-    for (const auto &entry : fs::directory_iterator("/sys/class/thermal")) {
-        if (!entry.is_directory())
-            continue;
-
-        const auto &path = entry.path();
-        auto type_path = path / "type";
-        std::ifstream type_file(type_path);
-        if (!type_file.is_open())
-            continue;
-
-        std::string type;
-        std::getline(type_file, type);
-        for (const auto &keyword : cpu_zone_keywords) {
-            if (type.find(keyword) != std::string::npos) {
-                return (path / "temp").string();
-            }
-        }
+    std::string path = findDirByType("/sys/class/thermal", cpu_zone_keywords);
+    if (path.empty()) {
+        return "";
     }
-
-    return "";
+    return path + "/temp";
 }
 
 std::string CpuProvider::getCpuNameFromSystem() {

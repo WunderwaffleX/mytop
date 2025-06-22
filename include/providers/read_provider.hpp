@@ -1,7 +1,10 @@
 #pragma once
+
+#include "filesystem"
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 class ReadProvider {
   protected:
@@ -33,5 +36,29 @@ class ReadProvider {
         }
 
         return value;
+    }
+
+    std::string findDirByType(const std::string &base_path,
+                              const std::vector<std::string> &keywords) const {
+        namespace fs = std::filesystem;
+        for (const auto &entry : fs::directory_iterator(base_path)) {
+            if (!entry.is_directory())
+                continue;
+
+            auto type_path = entry.path() / "type";
+            std::ifstream type_file(type_path);
+            if (!type_file.is_open())
+                continue;
+
+            std::string type;
+            std::getline(type_file, type);
+
+            for (const auto &keyword : keywords) {
+                if (type.find(keyword) != std::string::npos) {
+                    return entry.path().string();
+                }
+            }
+        }
+        return "";
     }
 };

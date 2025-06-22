@@ -1,6 +1,7 @@
 #include "system_monitor.hpp"
 #include <unistd.h>
 
+#include "providers/battery_provider.hpp"
 #include "providers/cpu_provider.hpp"
 #include "providers/memory_provider.hpp"
 
@@ -8,6 +9,7 @@ SystemMonitor::SystemMonitor() {
     // TODO: add providers
     providers.push_back(std::make_unique<CpuProvider>());
     providers.push_back(std::make_unique<MemoryProvider>());
+    providers.push_back(std::make_unique<BatteryProvider>());
 }
 
 SystemStats SystemMonitor::collect() {

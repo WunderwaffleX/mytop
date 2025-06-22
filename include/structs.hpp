@@ -5,17 +5,17 @@
 #include <vector>
 
 struct CoreStats {
-    int coreid;
+    size_t coreid;
     float usage_percent;
-    int temperature;
+    size_t temperature;
     float frequency_mhz;
 };
 
 struct CPUStats {
     std::string name;
     float usage_percent;
-    int temperature;
-    int frequency_mhz;
+    size_t temperature;
+    size_t frequency_mhz;
     std::vector<CoreStats> cores;
 };
 
@@ -31,7 +31,7 @@ struct MemoryStats {
 };
 
 struct ProcessInfo {
-    int pid;
+    size_t pid;
     std::string name;
     std::string user;
     float cpu_usage;
@@ -40,15 +40,18 @@ struct ProcessInfo {
     size_t resident_memory;
     float uptime;
     std::string state;
-    int nice;
-    int priority;
-    int threads;
+    size_t nice;
+    size_t priority;
+    size_t threads;
     std::string command;
 };
 
 struct BatteryStats {
     std::string status;
-    int percentage;
+    size_t charge_now;
+    size_t charge_full;
+    size_t current_now;
+    size_t percentage;
     float time_remaining;
 };
 
@@ -62,7 +65,7 @@ struct DiskStats {
 struct GPUStats {
     std::string name;
     float usage_percent;
-    int temperature;
+    size_t temperature;
     size_t memory_total;
     size_t memory_used;
 };

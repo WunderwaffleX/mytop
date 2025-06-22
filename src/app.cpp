@@ -17,14 +17,28 @@ void App::run() {
         std::cout << "Freq: " << stats.cpu.frequency_mhz << std::endl;
 
         std::cout << delim << "Memory" << delim << std::endl;
-        std::cout << "Total: " << stats.memory.total << std::endl;
+        std::cout << "Total: " << stats.memory.total << " kb" << std::endl;
         std::cout << "Used: " << stats.memory.used_percent << '%' << std::endl;
-        std::cout << "Used: " << stats.memory.used << std::endl;
-        std::cout << "Free: " << stats.memory.free << std::endl;
-        std::cout << "Available: " << stats.memory.available << std::endl;
-        std::cout << "Cached: " << stats.memory.cached << std::endl;
-        std::cout << "Swap Total: " << stats.memory.swap_total << std::endl;
-        std::cout << "Swap Used: " << stats.memory.swap_used << std::endl;
+        std::cout << "Used: " << stats.memory.used << " kb" << std::endl;
+        std::cout << "Free: " << stats.memory.free << " kb" << std::endl;
+        std::cout << "Available: " << stats.memory.available << " kb"
+                  << std::endl;
+        std::cout << "Cached: " << stats.memory.cached << " kb" << std::endl;
+        std::cout << "Swap Total: " << stats.memory.swap_total << " kb"
+                  << std::endl;
+        std::cout << "Swap Used: " << stats.memory.swap_used << " kb"
+                  << std::endl;
+
+        std::cout << delim << "Battery" << delim << std::endl;
+        std::cout << "Status: " << stats.battery.status << std::endl;
+        std::cout << "Charge now: " << stats.battery.charge_now << std::endl;
+        std::cout << "Charge full: " << stats.battery.charge_full << std::endl;
+        std::cout << "Current now: " << stats.battery.current_now << std::endl;
+        std::cout << "Percentage: " << stats.battery.percentage << '%'
+                  << std::endl;
+        std::cout << "Time remaining: " << stats.battery.time_remaining
+                  << std::endl;
+
         sleep(1);
     }
 }

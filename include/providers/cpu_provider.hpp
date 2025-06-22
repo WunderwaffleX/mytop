@@ -6,11 +6,11 @@
 #include <string>
 
 struct CpuTime {
-    long long user, nice, system, idle, iowait, irq, softirq, steal;
-    long long total() const {
+    uint64_t user, nice, system, idle, iowait, irq, softirq, steal;
+    uint64_t total() const {
         return user + nice + system + idle + iowait + irq + softirq + steal;
     }
-    long long idleTime() const {
+    uint64_t idleTime() const {
         return idle + iowait;
     }
 };
@@ -26,7 +26,7 @@ class CpuProvider : public IStatsProvider, ReadProvider {
 
     CpuTime parseCpuTimeLine(const std::string &line);
     float getCpuUsage();
-    int getCpuTemperature();
+    size_t getCpuTemperature();
     float getCpuFreq();
 
   public:
