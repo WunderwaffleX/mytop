@@ -22,6 +22,7 @@ struct CPUStats {
 struct MemoryStats {
     size_t total;
     size_t used;
+    float used_percent;
     size_t free;
     size_t available;
     size_t cached;
