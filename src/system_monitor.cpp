@@ -3,6 +3,7 @@
 
 #include "providers/battery_provider.hpp"
 #include "providers/cpu_provider.hpp"
+#include "providers/disk_provider.hpp"
 #include "providers/memory_provider.hpp"
 
 SystemMonitor::SystemMonitor() {
@@ -10,6 +11,7 @@ SystemMonitor::SystemMonitor() {
     providers.push_back(std::make_unique<CpuProvider>());
     providers.push_back(std::make_unique<MemoryProvider>());
     providers.push_back(std::make_unique<BatteryProvider>());
+    providers.push_back(std::make_unique<DiskProvider>());
 }
 
 SystemStats SystemMonitor::collect() {

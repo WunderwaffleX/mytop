@@ -1,2 +1,4 @@
 /build/
 /.cache/
+mytop
+compile_commands.json

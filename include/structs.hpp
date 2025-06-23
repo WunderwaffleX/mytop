@@ -57,6 +57,8 @@ struct BatteryStats {
 
 struct DiskStats {
     std::string name;
+    std::string partition;
+    std::string filesystem;
     uint64_t total_space;
     uint64_t used_space;
     float usage_percent;
@@ -77,5 +79,5 @@ struct SystemStats {
     std::vector<ProcessInfo> processes;
     std::chrono::system_clock::time_point timestamp;
     BatteryStats battery;
-    DiskStats disk;
+    std::vector<DiskStats> disk;
 };

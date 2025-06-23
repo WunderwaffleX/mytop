@@ -1,4 +1,5 @@
 #include "app.hpp"
+#include "structs.hpp"
 #include "system_monitor.hpp"
 #include <iostream>
 #include <string>
@@ -39,6 +40,17 @@ void App::run() {
         std::cout << "Time remaining: " << stats.battery.time_remaining
                   << std::endl;
 
+        std::cout << delim << "Disks" << delim << std::endl;
+        for (DiskStats &disk : stats.disk) {
+            std::cout << "Name: " << disk.name << std::endl;
+            std::cout << "partition: " << disk.partition << std::endl;
+            std::cout << "filesystem: " << disk.filesystem << std::endl;
+            std::cout << "Used Space: " << disk.used_space << std::endl;
+            std::cout << "Total space: " << disk.total_space << std::endl;
+            std::cout << "Usage percent: " << disk.usage_percent << '%'
+                      << std::endl;
+            std::cout << std::endl;
+        }
         sleep(1);
     }
 }
