@@ -7,7 +7,6 @@
 struct CoreStats {
     size_t coreid;
     float usage_percent;
-    size_t temperature;
     float frequency_mhz;
 };
 
