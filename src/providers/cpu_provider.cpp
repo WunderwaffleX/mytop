@@ -5,7 +5,6 @@
 #include <regex>
 #include <sstream>
 #include <string>
-#include <thread>
 #include <unistd.h>
 #include <vector>
 
@@ -32,14 +31,6 @@ std::vector<CpuTime> CpuProvider::getCpuTimeSnapshot() {
     }
 
     return times;
-}
-
-std::pair<std::vector<CpuTime>, std::vector<CpuTime>>
-CpuProvider::getCpuTimeSnapshots() {
-    auto snapshot1 = getCpuTimeSnapshot();
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    auto snapshot2 = getCpuTimeSnapshot();
-    return {snapshot1, snapshot2};
 }
 
 float CpuProvider::getCpuUsage(const CpuTime &t1, const CpuTime &t2) {
@@ -84,7 +75,10 @@ std::vector<CoreStats> CpuProvider::getCoreStats(std::vector<CpuTime> t1,
         float freq = readValue<float>(freq_path, 0.0f);
 
         CoreStats stats{};
-        stats.frequency_mhz = freq / 1000.0f;
+
+        stats.coreid = i;
+
+        stats.frequency_mhz = freq;
 
         stats.usage_percent = getCpuUsage(t1[i + 1], t2[i + 1]);
 
@@ -143,14 +137,25 @@ CpuProvider::CpuProvider() {
 }
 
 void CpuProvider::update(SystemStats &stats) {
-    auto [times1, times2] = getCpuTimeSnapshots();
+    std::vector<CpuTime> times1 = getCpuTimeSnapshot();
 
-    if (times1.empty() || times2.empty())
+    if (times1.empty())
         return;
 
+    stats.cpu.prev_time = stats.cpu.time;
+
+    stats.cpu.time = times1;
+
     stats.cpu.name = cpuName;
-    stats.cpu.usage_percent = getCpuUsage(times1[0], times2[0]);
     stats.cpu.temperature = getCpuTemperature();
     stats.cpu.frequency_mhz = getCpuFreq();
-    stats.cpu.cores = getCoreStats(times1, times2);
+
+    if (!stats.cpu.prev_time.empty()) {
+        stats.cpu.usage_percent =
+            getCpuUsage(stats.cpu.prev_time[0], stats.cpu.time[0]);
+        stats.cpu.cores = getCoreStats(stats.cpu.prev_time, stats.cpu.time);
+    } else {
+        stats.cpu.usage_percent = 0.0f;
+        stats.cpu.cores.clear();
+    }
 }

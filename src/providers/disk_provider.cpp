@@ -38,6 +38,8 @@ void DiskProvider::getDiskInfo(DiskStats &disk) {
 DiskProvider::DiskProvider() {}
 
 void DiskProvider::update(SystemStats &stats) {
+    stats.disk.clear();
+
     parseMtab(stats.disk);
     for (DiskStats &disk : stats.disk) {
         getDiskInfo(disk);
