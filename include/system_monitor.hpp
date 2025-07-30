@@ -7,7 +7,7 @@
 
 class SystemMonitor {
   private:
-    SystemStats stats;
+    SystemStats m_stats;
     std::vector<std::unique_ptr<IStatsProvider>> providers;
 
   public:

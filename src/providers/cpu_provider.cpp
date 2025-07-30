@@ -44,10 +44,10 @@ float CpuProvider::getCpuUsage(const CpuTime &t1, const CpuTime &t2) {
 }
 
 size_t CpuProvider::getCpuTemperature() {
-    if (thermalPath.empty())
+    if (m_thermalPath.empty())
         return 0;
 
-    std::ifstream temp_file(thermalPath);
+    std::ifstream temp_file(m_thermalPath);
     if (!temp_file.is_open())
         return 0;
 
@@ -60,7 +60,7 @@ size_t CpuProvider::getCpuTemperature() {
 std::vector<CoreStats> CpuProvider::getCoreStats(std::vector<CpuTime> t1,
                                                  std::vector<CpuTime> t2) {
 
-    if (t1.size() != coresAmount + 1 || t2.size() != coresAmount + 1) {
+    if (t1.size() != m_coresAmount + 1 || t2.size() != m_coresAmount + 1) {
         return {};
     }
 
@@ -69,7 +69,7 @@ std::vector<CoreStats> CpuProvider::getCoreStats(std::vector<CpuTime> t1,
     const fs::path cpu_path(path);
     std::vector<CoreStats> core_stats;
 
-    for (int i = 0; i < coresAmount; i++) {
+    for (int i = 0; i < m_coresAmount; i++) {
         std::string freq_path =
             path + "cpu" + std::to_string(i) + "/cpufreq/scaling_cur_freq";
         float freq = readValue<float>(freq_path, 0.0f);
@@ -88,7 +88,7 @@ std::vector<CoreStats> CpuProvider::getCoreStats(std::vector<CpuTime> t1,
 }
 
 float CpuProvider::getCpuFreq() {
-    return readValue<float>(freqPath, 0.0f);
+    return readValue<float>(m_freqPath, 0.0f);
 }
 
 int CpuProvider::getCoresAmount() {
@@ -130,10 +130,10 @@ std::string CpuProvider::getCpuNameFromSystem() {
 }
 
 CpuProvider::CpuProvider() {
-    cpuName = getCpuNameFromSystem();
-    coresAmount = getCoresAmount();
-    thermalPath = getThermalPath();
-    freqPath = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq";
+    m_cpuName = getCpuNameFromSystem();
+    m_coresAmount = getCoresAmount();
+    m_thermalPath = getThermalPath();
+    m_freqPath = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq";
 }
 
 void CpuProvider::update(SystemStats &stats) {
@@ -146,7 +146,7 @@ void CpuProvider::update(SystemStats &stats) {
 
     stats.cpu.time = times1;
 
-    stats.cpu.name = cpuName;
+    stats.cpu.name = m_cpuName;
     stats.cpu.temperature = getCpuTemperature();
     stats.cpu.frequency_mhz = getCpuFreq();
 

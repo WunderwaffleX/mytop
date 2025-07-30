@@ -41,7 +41,7 @@ GpuProvider::GpuProvider() {
             .card_name = name,
         };
 
-        detected_gpus.push_back(gpu_info);
+        m_detected_gpus.push_back(gpu_info);
     }
 
     nvmlInit_v2();
@@ -54,7 +54,7 @@ void GpuProvider::update(SystemStats &stats) {
 
     unsigned int nvml_index = 0;
 
-    for (const auto &info : detected_gpus) {
+    for (const auto &info : m_detected_gpus) {
         GPUStats stat;
         // stat.name = info.card_name;
 

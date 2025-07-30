@@ -14,7 +14,7 @@
 
 using namespace ftxui;
 
-Element UI::render_cpu(const CPUStats &cpu) {
+Element UI::renderCPU(const CPUStats &cpu) {
 
     auto summary = vbox({
         text(fmt::format("Name: {}", cpu.name)),
@@ -43,7 +43,7 @@ Element UI::render_cpu(const CPUStats &cpu) {
     return window(text(" CPU "), gridbox({{summary, separator(), core_info}}));
 }
 
-Element UI::render_memory(const MemoryStats &mem) {
+Element UI::renderMemory(const MemoryStats &mem) {
     constexpr int max_graph_width = 50;
 
     return window(
@@ -61,7 +61,7 @@ Element UI::render_memory(const MemoryStats &mem) {
         }));
 }
 
-Element UI::render_battery(const BatteryStats &bat) {
+Element UI::renderBattery(const BatteryStats &bat) {
     return window(text(" Battery "),
                   vbox({
                       text(fmt::format("{}: {}% ({})", bat.status,
@@ -69,7 +69,7 @@ Element UI::render_battery(const BatteryStats &bat) {
                   }));
 }
 
-Element UI::render_disks(const std::vector<DiskStats> &disks) {
+Element UI::renderDisks(const std::vector<DiskStats> &disks) {
     Elements disk_boxes;
 
     for (size_t i = 0; i < disks.size(); ++i) {
@@ -90,7 +90,7 @@ Element UI::render_disks(const std::vector<DiskStats> &disks) {
     return window(text(" Disks "), hbox(std::move(disk_boxes)));
 }
 
-Element UI::render_gpu(const std::vector<GPUStats> &gpus) {
+Element UI::renderGPU(const std::vector<GPUStats> &gpus) {
     Elements gpu_boxes;
 
     for (size_t i = 0; i < gpus.size(); ++i) {
@@ -148,17 +148,17 @@ make_history_func(std::vector<int> &history) {
     };
 }
 
-Element UI::render_stats_tab(const SystemStats &stats) {
+Element UI::renderStatsTab(const SystemStats &stats) {
     return vbox({
-        render_battery(stats.battery),
-        render_cpu(stats.cpu),
-        render_gpu(stats.gpu),
-        render_memory(stats.memory),
-        render_disks(stats.disk),
+        renderBattery(stats.battery),
+        renderCPU(stats.cpu),
+        renderGPU(stats.gpu),
+        renderMemory(stats.memory),
+        renderDisks(stats.disk),
     });
 }
 
-Element UI::render_process_modal(const ProcessInfo &proc) {
+Element UI::renderProcessModal(const ProcessInfo &proc) {
     auto title = text(fmt::format(" Process {} ", proc.pid)) | bold |
                  color(Color::White);
     auto body = vbox({
@@ -187,7 +187,7 @@ Element UI::render_process_modal(const ProcessInfo &proc) {
     }));
 }
 
-Element UI::render_process_tab(std::vector<ProcessInfo> processes) {
+Element UI::renderProcessTab(std::vector<ProcessInfo> processes) {
     Elements table;
 
     auto truncate = [](const std::string &str, size_t max_len) {
@@ -199,26 +199,26 @@ Element UI::render_process_tab(std::vector<ProcessInfo> processes) {
     std::string sort_indicator_;
     std::vector<size_t> *active_index;
 
-    switch (sort_order_) {
+    switch (m_sort_order) {
     case SortOrder::PID:
         sort_indicator_ = "↓PID";
-        active_index = &state_.idx_pid;
+        active_index = &m_state.idx_pid;
         break;
     case SortOrder::NAME:
         sort_indicator_ = "↓Name";
-        active_index = &state_.idx_name;
+        active_index = &m_state.idx_name;
         break;
     case SortOrder::CPU:
         sort_indicator_ = "↓CPU%";
-        active_index = &state_.idx_cpu;
+        active_index = &m_state.idx_cpu;
         break;
     case SortOrder::MEMORY:
         sort_indicator_ = "↓Memory";
-        active_index = &state_.idx_memory;
+        active_index = &m_state.idx_memory;
         break;
     case SortOrder::STATE:
         sort_indicator_ = "↓State";
-        active_index = &state_.idx_state;
+        active_index = &m_state.idx_state;
         break;
     }
 
@@ -232,18 +232,18 @@ Element UI::render_process_tab(std::vector<ProcessInfo> processes) {
         text("Command") | bold | flex,
     }));
 
-    if (selected_index_ < 0)
-        selected_index_ = 0;
-    if (selected_index_ >= static_cast<int>(processes.size()))
-        selected_index_ = processes.size() - 1;
+    if (m_selected_index < 0)
+        m_selected_index = 0;
+    if (m_selected_index >= static_cast<int>(processes.size()))
+        m_selected_index = processes.size() - 1;
 
-    int start = std::max(0, scroll_offset_);
+    int start = std::max(0, m_scroll_offset);
     int end =
-        std::min(start + visible_rows_, static_cast<int>(processes.size()));
+        std::min(start + m_visible_rows, static_cast<int>(processes.size()));
 
     for (int i = start; i < end; ++i) {
         size_t index_in_processes;
-        if (sort_reversed_) {
+        if (m_sort_reversed) {
             index_in_processes = (*active_index)[active_index->size() - 1 - i];
         } else {
             index_in_processes = (*active_index)[i];
@@ -262,11 +262,11 @@ Element UI::render_process_tab(std::vector<ProcessInfo> processes) {
             text(truncate(proc.command, 100)) | flex,
         });
 
-        if (static_cast<int>(i) == selected_index_) {
+        if (static_cast<int>(i) == m_selected_index) {
             row = row | inverted;
-            if (change_proc_) {
-                change_proc_ = false;
-                selected_proc_ = proc;
+            if (m_change_proc) {
+                m_change_proc = false;
+                m_selected_proc = proc;
             }
         }
 
@@ -274,7 +274,7 @@ Element UI::render_process_tab(std::vector<ProcessInfo> processes) {
     }
     return window(text(fmt::format(" Processes ({})", sort_indicator_)),
                   vbox({vbox(std::move(table)) | frame | vscroll_indicator |
-                        size(HEIGHT, LESS_THAN, visible_rows_)}));
+                        size(HEIGHT, LESS_THAN, m_visible_rows)}));
 }
 
 Element render_help_tab() {
@@ -294,117 +294,117 @@ Element render_help_tab() {
            flex;
 }
 
-Element UI::render_ui(const SystemStats &stats) {
-    if (current_tab_ == 1) {
+Element UI::renderUI(const SystemStats &stats) {
+    if (m_current_tab == 1) {
 
-        return render_process_tab(stats.processes);
+        return renderProcessTab(stats.processes);
     }
-    return render_stats_tab(stats);
+    return renderStatsTab(stats);
 }
 
 UI::UI(AppState &state, Formatter &formatter)
-    : state_(state), screen_(ScreenInteractive::Fullscreen()),
-      formatter_(formatter) {
+    : m_state(state), m_screen(ScreenInteractive::Fullscreen()),
+      m_formatter(formatter) {
 
-    cpu_history_func = make_history_func(state_.cpu_history);
-    memory_history_func = make_history_func(state_.memory_history);
+    cpu_history_func = make_history_func(m_state.cpu_history);
+    memory_history_func = make_history_func(m_state.memory_history);
 
     Component base_component = Renderer([this] {
-        std::lock_guard<std::mutex> lock(state_.mutex);
-        const auto &formatted = state_.stats;
-        return render_ui(formatted);
+        std::lock_guard<std::mutex> lock(m_state.mutex);
+        const auto &formatted = m_state.stats;
+        return renderUI(formatted);
     });
 
     Component modal_component =
-        Renderer([this] { return render_process_modal(selected_proc_); });
+        Renderer([this] { return renderProcessModal(m_selected_proc); });
 
-    base_component |= Modal(modal_component, &show_process_menu_);
+    base_component |= Modal(modal_component, &m_show_process_menu);
 
-    renderer_ = CatchEvent(base_component, [this, &state](const Event &event) {
+    m_renderer = CatchEvent(base_component, [this, &state](const Event &event) {
         if (event == Event::Character('q') ||
             event == Event::Character('\003')) {
-            screen_.Exit();
+            m_screen.Exit();
             return true;
         }
 
         if (event == Event::Tab || event == Event::Character('\t')) {
-            visible_rows_ = screen_.dimy() - 2;
-            current_tab_ = (current_tab_ + 1) % 2;
-            show_process_menu_ = false;
+            m_visible_rows = m_screen.dimy() - 2;
+            m_current_tab = (m_current_tab + 1) % 2;
+            m_show_process_menu = false;
             return true;
         }
 
-        if (current_tab_ == 1) {
-            std::lock_guard<std::mutex> lock(state_.mutex);
-            const auto &proc_count = state_.stats.processes.size();
+        if (m_current_tab == 1) {
+            std::lock_guard<std::mutex> lock(m_state.mutex);
+            const auto &proc_count = m_state.stats.processes.size();
 
             if (event == Event::ArrowUp) {
-                if (selected_index_ > 0) {
-                    --selected_index_;
-                    if (selected_index_ < scroll_offset_ + 4) {
-                        scroll_offset_ = std::max(0, selected_index_ - 4);
+                if (m_selected_index > 0) {
+                    --m_selected_index;
+                    if (m_selected_index < m_scroll_offset + 4) {
+                        m_scroll_offset = std::max(0, m_selected_index - 4);
                     }
                 }
-                show_process_menu_ = false;
+                m_show_process_menu = false;
                 return true;
             }
             if (event == Event::ArrowDown) {
-                if (selected_index_ + 1 < static_cast<int>(proc_count)) {
-                    ++selected_index_;
-                    if (selected_index_ > scroll_offset_ + visible_rows_ - 5) {
-                        scroll_offset_ = std::min(
-                            static_cast<int>(proc_count) - visible_rows_,
-                            selected_index_ - visible_rows_ + 5);
+                if (m_selected_index + 1 < static_cast<int>(proc_count)) {
+                    ++m_selected_index;
+                    if (m_selected_index > m_scroll_offset + m_visible_rows - 5) {
+                        m_scroll_offset = std::min(
+                            static_cast<int>(proc_count) - m_visible_rows,
+                            m_selected_index - m_visible_rows + 5);
                     }
                 }
-                show_process_menu_ = false;
+                m_show_process_menu = false;
                 return true;
             }
 
             if (event == Event::ArrowLeft || event == Event::ArrowRight) {
                 if (event == Event::ArrowRight) {
-                    sort_order_ = static_cast<SortOrder>(
-                        (static_cast<int>(sort_order_) + 1) % 5);
+                    m_sort_order = static_cast<SortOrder>(
+                        (static_cast<int>(m_sort_order) + 1) % 5);
                 } else {
-                    sort_order_ = static_cast<SortOrder>(
-                        (static_cast<int>(sort_order_) + 4) % 5);
+                    m_sort_order = static_cast<SortOrder>(
+                        (static_cast<int>(m_sort_order) + 4) % 5);
                 }
 
-                selected_index_ = 0;
-                scroll_offset_ = 0;
+                m_selected_index = 0;
+                m_scroll_offset = 0;
 
                 return true;
             }
             if (event == Event::Character('r')) {
-                sort_reversed_ = !sort_reversed_;
+                m_sort_reversed = !m_sort_reversed;
                 return true;
             }
             if (event == Event::Return) {
-                change_proc_ = true;
-                show_process_menu_ = true;
+                m_change_proc = true;
+                m_show_process_menu = true;
                 return true;
             }
             // TODO: make search 'f'
-            if (show_process_menu_ && event == Event::Escape) {
-                show_process_menu_ = false;
+            if (m_show_process_menu && event == Event::Escape) {
+                m_show_process_menu = false;
                 return true;
             }
         }
 
-        if (show_process_menu_) {
+        if (m_show_process_menu) {
             if (event == Event::Character('s')) {
-                kill(selected_proc_.pid, SIGSTOP);
-                show_process_menu_ = false;
+                kill(m_selected_proc.pid, SIGSTOP);
+                m_show_process_menu = false;
                 return true;
             }
             if (event == Event::Character('t')) {
-                kill(selected_proc_.pid, SIGTERM);
-                show_process_menu_ = false;
+                kill(m_selected_proc.pid, SIGTERM);
+                m_show_process_menu = false;
                 return true;
             }
             if (event == Event::Character('k')) {
-                kill(selected_proc_.pid, SIGKILL);
-                show_process_menu_ = false;
+                kill(m_selected_proc.pid, SIGKILL);
+                m_show_process_menu = false;
                 return true;
             }
         }
@@ -413,10 +413,10 @@ UI::UI(AppState &state, Formatter &formatter)
     });
 }
 
-void UI::notify_refresh() {
-    screen_.PostEvent(Event::Custom);
+void UI::notifyRefresh() {
+    m_screen.PostEvent(Event::Custom);
 }
 
 void UI::run() {
-    screen_.Loop(renderer_);
+    m_screen.Loop(m_renderer);
 }

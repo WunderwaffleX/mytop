@@ -13,8 +13,8 @@ struct DetectedGPUInfo {
 
 class GpuProvider : public IStatsProvider, ReadProvider {
   private:
-    size_t gpu_count = 0;
-    std::vector<DetectedGPUInfo> detected_gpus;
+    size_t m_gpu_count = 0;
+    std::vector<DetectedGPUInfo> m_detected_gpus;
 
   public:
     GpuProvider();

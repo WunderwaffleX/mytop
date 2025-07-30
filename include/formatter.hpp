@@ -10,12 +10,12 @@ class Formatter {
     void sort_processes(std::vector<ProcessInfo> procs);
 
   private:
-    AppState &state_;
+    AppState &m_state;
 
-    void format_cpu(CPUStats &cpu);
-    void format_memory(MemoryStats &mem);
-    void format_battery(BatteryStats &bat);
-    void format_disk(std::vector<DiskStats> &disks);
-    void format_gpu(std::vector<GPUStats> &gpus);
-    void format_process(std::vector<ProcessInfo> &procs);
+    void formatCPU(CPUStats &cpu);
+    void formatMemory(MemoryStats &mem);
+    void formatBattery(BatteryStats &bat);
+    void formatDisk(std::vector<DiskStats> &disks);
+    void formatGPU(std::vector<GPUStats> &gpus);
+    void formatProcess(std::vector<ProcessInfo> &procs);
 };

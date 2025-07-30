@@ -3,29 +3,29 @@
 #include <numeric>
 #include <vector>
 
-Formatter::Formatter(AppState &state) : state_(state) {};
+Formatter::Formatter(AppState &state) : m_state(state) {};
 
 void Formatter::format(SystemStats &stats) {
-    format_cpu(stats.cpu);
-    format_memory(stats.memory);
-    format_battery(stats.battery);
-    format_disk(stats.disk);
-    format_gpu(stats.gpu);
-    format_process(stats.processes);
+    formatCPU(stats.cpu);
+    formatMemory(stats.memory);
+    formatBattery(stats.battery);
+    formatDisk(stats.disk);
+    formatGPU(stats.gpu);
+    formatProcess(stats.processes);
 }
 
 void Formatter::sort_processes(std::vector<ProcessInfo> procs) {
-    format_process(procs);
+    formatProcess(procs);
 }
 
-void Formatter::format_cpu(CPUStats &cpu) {
+void Formatter::formatCPU(CPUStats &cpu) {
     cpu.frequency_mhz /= 1000;
     for (CoreStats &core : cpu.cores) {
         core.frequency_mhz /= 1000;
     }
 };
 
-void Formatter::format_memory(MemoryStats &mem) {
+void Formatter::formatMemory(MemoryStats &mem) {
     auto to_gb = [](double bytes) { return bytes / 1e6; };
     mem.total_gb = to_gb(mem.total);
     mem.used_gb = to_gb(mem.used);
@@ -35,17 +35,17 @@ void Formatter::format_memory(MemoryStats &mem) {
     mem.swap_total_gb = to_gb(mem.swap_total);
     mem.swap_used_gb = to_gb(mem.swap_used);
 };
-void Formatter::format_battery(BatteryStats &bat) {};
-void Formatter::format_disk(std::vector<DiskStats> &disks) {
+void Formatter::formatBattery(BatteryStats &bat) {};
+void Formatter::formatDisk(std::vector<DiskStats> &disks) {
     for (DiskStats &disk : disks) {
         disk.total_space_gb = disk.total_space / 1e9;
         disk.used_space_gb = disk.used_space / 1e9;
     }
 };
-void Formatter::format_gpu(std::vector<GPUStats> &gpus) {
+void Formatter::formatGPU(std::vector<GPUStats> &gpus) {
 
 };
-void Formatter::format_process(std::vector<ProcessInfo> &processes) {
+void Formatter::formatProcess(std::vector<ProcessInfo> &processes) {
     size_t n = processes.size();
     std::vector<size_t> base_idx(n);
     std::iota(base_idx.begin(), base_idx.end(), 0);
@@ -57,27 +57,27 @@ void Formatter::format_process(std::vector<ProcessInfo> &processes) {
         });
     };
 
-    sort_indices(state_.idx_pid,
+    sort_indices(m_state.idx_pid,
                  [&](const ProcessInfo &a, const ProcessInfo &b) {
                      return a.pid < b.pid;
                  });
 
-    sort_indices(state_.idx_name,
+    sort_indices(m_state.idx_name,
                  [&](const ProcessInfo &a, const ProcessInfo &b) {
                      return a.name < b.name;
                  });
 
-    sort_indices(state_.idx_cpu,
+    sort_indices(m_state.idx_cpu,
                  [&](const ProcessInfo &a, const ProcessInfo &b) {
                      return a.cpu_usage > b.cpu_usage; // по убыванию
                  });
 
     sort_indices(
-        state_.idx_memory, [&](const ProcessInfo &a, const ProcessInfo &b) {
+        m_state.idx_memory, [&](const ProcessInfo &a, const ProcessInfo &b) {
             return a.resident_memory > b.resident_memory; // по убыванию
         });
 
-    sort_indices(state_.idx_state,
+    sort_indices(m_state.idx_state,
                  [&](const ProcessInfo &a, const ProcessInfo &b) {
                      return a.state < b.state;
                  });

@@ -5,19 +5,19 @@
 #include <unistd.h>
 
 std::string BatteryProvider::getBatteryStatus() {
-    return readString(battery_path + "/status");
+    return readString(m_battery_path + "/status");
 }
 
 size_t BatteryProvider::getBatteryChargeNow() {
-    return readValue<size_t>(battery_path + "/charge_now");
+    return readValue<size_t>(m_battery_path + "/charge_now");
 }
 
 size_t BatteryProvider::getBatteryChargeFull() {
-    return readValue<size_t>(battery_path + "/charge_full");
+    return readValue<size_t>(m_battery_path + "/charge_full");
 }
 
 size_t BatteryProvider::getBatteryCurrentNow() {
-    return readValue<size_t>(battery_path + "/current_now");
+    return readValue<size_t>(m_battery_path + "/current_now");
 }
 
 size_t BatteryProvider::getBatteryPercentage(size_t charge_now,
@@ -50,7 +50,7 @@ std::string BatteryProvider::getBatteryPath() {
 }
 
 BatteryProvider::BatteryProvider() {
-    battery_path = getBatteryPath();
+    m_battery_path = getBatteryPath();
 }
 
 void BatteryProvider::update(SystemStats &stats) {

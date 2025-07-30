@@ -20,11 +20,11 @@ SystemMonitor::SystemMonitor() {
 }
 
 SystemStats SystemMonitor::collect() {
-    stats.timestamp = std::chrono::system_clock::now();
+    m_stats.timestamp = std::chrono::system_clock::now();
 
     for (size_t i = 0; i < providers.size(); ++i) {
         try {
-            providers[i]->update(stats);
+            providers[i]->update(m_stats);
         } catch (const std::exception &e) {
             std::cerr << "Provider " << i << " threw: " << e.what()
                       << std::endl;
@@ -33,5 +33,5 @@ SystemStats SystemMonitor::collect() {
                       << std::endl;
         }
     }
-    return stats;
+    return m_stats;
 }

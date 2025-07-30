@@ -4,7 +4,6 @@
 #include "read_provider.hpp"
 #include "structs.hpp"
 #include <cstddef>
-#include <cstdint>
 #include <unordered_map>
 
 struct ProcInfo {
@@ -20,10 +19,10 @@ struct ProcInfo {
 
 class ProcessProvider : public IStatsProvider, ReadProvider {
   private:
-    std::unordered_map<size_t, unsigned long> prevProcTime;
+    std::unordered_map<size_t, unsigned long> m_prevProcTime;
 
-    void parseProcStat(const std::string &proc_path, ProcessInfo &proc);
-    ProcessInfo getProcessInfo(std::string &proc_path);
+    void parseProcStat(const std::string &procPath, ProcessInfo &proc);
+    ProcessInfo getProcessInfo(std::string &procPath);
 
   public:
     ProcessProvider();

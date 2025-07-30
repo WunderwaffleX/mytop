@@ -38,7 +38,7 @@ void App::run() {
                 formatter.format(state.stats);
             }
 
-            ui.notify_refresh();
+            ui.notifyRefresh();
 
             lock.lock();
             // end time >= start time + 1000

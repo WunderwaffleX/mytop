@@ -84,9 +84,9 @@ void ProcessProvider::update(SystemStats &stats) {
                 ProcessInfo proc = getProcessInfo(proc_path);
                 curProcTime[proc.pid] = proc.time;
 
-                auto it = prevProcTime.find(proc.pid);
+                auto it = m_prevProcTime.find(proc.pid);
                 unsigned long prev_proc_time =
-                    (it != prevProcTime.end()) ? it->second : 0;
+                    (it != m_prevProcTime.end()) ? it->second : 0;
 
                 if (delta_total > 0 && prev_proc_time != 0 &&
                     proc.time >= prev_proc_time) {
@@ -102,5 +102,5 @@ void ProcessProvider::update(SystemStats &stats) {
         }
     }
 
-    prevProcTime = std::move(curProcTime);
+    m_prevProcTime = std::move(curProcTime);
 }

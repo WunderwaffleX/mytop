@@ -9,39 +9,39 @@
 class ReadProvider {
   protected:
     template <typename T>
-    T readValue(const std::string &path, const T &default_value = T{}) const {
+    T readValue(const std::string &path, const T &defaultValue = T{}) const {
         std::ifstream file(path);
         if (!file.is_open()) {
-            return default_value;
+            return defaultValue;
         }
 
         T value;
         if (!(file >> value)) {
-            return default_value;
+            return defaultValue;
         }
 
         return value;
     }
 
     std::string readString(const std::string &path,
-                           const std::string &default_value = "") const {
+                           const std::string &defaultValue = "") const {
         std::ifstream file(path);
         if (!file.is_open()) {
-            return default_value;
+            return defaultValue;
         }
 
         std::string value;
         if (!std::getline(file, value)) {
-            return default_value;
+            return defaultValue;
         }
 
         return value;
     }
 
-    std::string findDirByType(const std::string &base_path,
+    std::string findDirByType(const std::string &basePath,
                               const std::vector<std::string> &keywords) const {
         namespace fs = std::filesystem;
-        for (const auto &entry : fs::directory_iterator(base_path)) {
+        for (const auto &entry : fs::directory_iterator(basePath)) {
             if (!entry.is_directory())
                 continue;
 

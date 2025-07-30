@@ -8,10 +8,10 @@
 
 class CpuProvider : public IStatsProvider, ReadProvider {
   private:
-    std::string cpuName;
-    int coresAmount = 0;
-    std::string thermalPath;
-    std::string freqPath;
+    std::string m_cpuName;
+    int m_coresAmount = 0;
+    std::string m_thermalPath;
+    std::string m_freqPath;
 
     std::string getCpuNameFromSystem();
     int getCoresAmount();
