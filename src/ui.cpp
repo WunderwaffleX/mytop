@@ -34,13 +34,14 @@ Element UI::renderCPU(const CPUStats &cpu) {
         (i < half ? left_column : right_column).push_back(line);
     }
 
-    auto core_info = gridbox({{
-        vbox(std::move(left_column)),
-        separator(),
-        vbox(std::move(right_column)),
-    }});
+    Elements res;
+    res.push_back(flex(summary));
+    res.push_back(separator());
+    res.push_back(flex(vbox(std::move(left_column))));
+    res.push_back(separator());
+    res.push_back(flex(vbox(std::move(right_column))));
 
-    return window(text(" CPU "), gridbox({{summary, separator(), core_info}}));
+    return window(text(" CPU "), hbox(std::move(res)));
 }
 
 Element UI::renderMemory(const MemoryStats &mem) {
@@ -173,7 +174,7 @@ Element UI::renderProcessModal(const ProcessInfo &proc) {
         // text(fmt::format("State: {}", proc.state)),
         // text(fmt::format("Command: {}", proc.command)),
         separator(),
-        text("Press S - SIGSTOP | T - SIGTERM | K - SIGKILL"),
+        text("Press S - SIGSTOP | T - SIGTERM | C - SIGKILL"),
         text("Press ESC to return"),
     });
 
@@ -196,32 +197,34 @@ Element UI::renderProcessTab(std::vector<ProcessInfo> processes) {
         return str.substr(0, max_len - 3) + "...";
     };
 
-    std::string sort_indicator_;
+    std::string sort_indicator_ = "↓";
     std::vector<size_t> *active_index;
+    if (m_sort_reversed) {
+        sort_indicator_ = "↑";
+    }
 
     switch (m_sort_order) {
     case SortOrder::PID:
-        sort_indicator_ = "↓PID";
+        sort_indicator_ += "PID";
         active_index = &m_state.idx_pid;
         break;
     case SortOrder::NAME:
-        sort_indicator_ = "↓Name";
+        sort_indicator_ += "Name";
         active_index = &m_state.idx_name;
         break;
     case SortOrder::CPU:
-        sort_indicator_ = "↓CPU%";
+        sort_indicator_ += "CPU%";
         active_index = &m_state.idx_cpu;
         break;
     case SortOrder::MEMORY:
-        sort_indicator_ = "↓Memory";
+        sort_indicator_ += "Memory";
         active_index = &m_state.idx_memory;
         break;
     case SortOrder::STATE:
-        sort_indicator_ = "↓State";
+        sort_indicator_ += "State";
         active_index = &m_state.idx_state;
         break;
     }
-
     table.push_back(hbox({
         text("PID") | bold | size(WIDTH, EQUAL, 6),
         text("PPID") | bold | size(WIDTH, EQUAL, 6),
@@ -338,7 +341,7 @@ UI::UI(AppState &state, Formatter &formatter)
             std::lock_guard<std::mutex> lock(m_state.mutex);
             const auto &proc_count = m_state.stats.processes.size();
 
-            if (event == Event::ArrowUp) {
+            if (event == Event::Character('k') || event == Event::ArrowUp) {
                 if (m_selected_index > 0) {
                     --m_selected_index;
                     if (m_selected_index < m_scroll_offset + 4) {
@@ -348,10 +351,11 @@ UI::UI(AppState &state, Formatter &formatter)
                 m_show_process_menu = false;
                 return true;
             }
-            if (event == Event::ArrowDown) {
+            if (event == Event::Character('j') || event == Event::ArrowDown) {
                 if (m_selected_index + 1 < static_cast<int>(proc_count)) {
                     ++m_selected_index;
-                    if (m_selected_index > m_scroll_offset + m_visible_rows - 5) {
+                    if (m_selected_index >
+                        m_scroll_offset + m_visible_rows - 5) {
                         m_scroll_offset = std::min(
                             static_cast<int>(proc_count) - m_visible_rows,
                             m_selected_index - m_visible_rows + 5);
@@ -361,7 +365,9 @@ UI::UI(AppState &state, Formatter &formatter)
                 return true;
             }
 
-            if (event == Event::ArrowLeft || event == Event::ArrowRight) {
+            if (event == Event::Character('h') ||
+                event == Event::Character('l') || event == Event::ArrowLeft ||
+                event == Event::ArrowRight) {
                 if (event == Event::ArrowRight) {
                     m_sort_order = static_cast<SortOrder>(
                         (static_cast<int>(m_sort_order) + 1) % 5);
@@ -402,7 +408,7 @@ UI::UI(AppState &state, Formatter &formatter)
                 m_show_process_menu = false;
                 return true;
             }
-            if (event == Event::Character('k')) {
+            if (event == Event::Character('c')) {
                 kill(m_selected_proc.pid, SIGKILL);
                 m_show_process_menu = false;
                 return true;

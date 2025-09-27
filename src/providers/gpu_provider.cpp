@@ -84,6 +84,11 @@ void GpuProvider::update(SystemStats &stats) {
                 stat.usage_percent = util.gpu;
             }
         } else if (info.vendor_id == "0x8086") { // Intel
+            stat.usage_percent = 0.0;
+            stat.temperature = 0;
+            stat.memory_total = 0;
+            stat.memory_used = 0;
+
             std::filesystem::path real_path =
                 fs::canonical(info.device_path); // .../drm/cardX
             std::filesystem::path pci_device_path =
@@ -107,10 +112,6 @@ void GpuProvider::update(SystemStats &stats) {
                     }
                 }
             }
-
-            stat.usage_percent = 0.0;
-            stat.memory_total = 0;
-            stat.memory_used = 0;
         }
 
         stats.gpu.push_back(stat);
